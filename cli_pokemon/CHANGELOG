@@ -1,0 +1,87 @@
+------------------------------------------------------------------------------
+ASSIGNMENT 1.09: Polishing Up the Game
+-------------------------------------------------------------------------------
+05/02/2022:
+-------------------------------------------------------------------------------
+Well, I'm going to be honest, I meant to start working on this over the
+weekend but other classes got the best of me. To make things worse, it is
+6:57pm currently, and I am just beginning. While this won't be an issue for
+the due date of Friday, I would like to be able to demo this by 12:40pm
+tomorrow for extra credit. Speed run time!
+
+First, I think it is best to focus on the things that I noticed wrong with my
+1.08 solution, and then begin going through the list of 1.09 specifications
+from Piazza. As of now, I am electing to start with the more basic features,
+which includes:
+- Trainers dropping PokeBucks after losing a battle.
+	- Everytime a Trainer's Pokemon has been defeated, drop rand() % 100
+	PokeBucks for the PC.
+- PokeMarts should sell Potions, Revives, and PokeBalls. For the sake of
+simplicity, let's have each item cost 100 PokeBucks.
+- PokeCenters shall automatically revive and heal all Pokemon on your team for
+free.
+-------------------------------------------------------------------------------
+STATUS:
+- Added poke_bucks to Pc class.
+- Added PC receiving PokeBucks upon defeating a Trainer's Pokemon. Might be
+cool to add the PC receiving PokeBucks upon actually defeating a Trainer.
+- Added print_pokemart() with required functionality.
+- Added that wild Pokemon encounters only occur while the PC's active Pokemon
+has not been defeated. This reduces annoying encounters when a PC is out of
+revives.
+- Added print_pokecenter() with healing functionality, still need to implement
+being able to view all captured Pokemon and swapping one of said Pokemon into
+PC's active Pokemon list.
+-------------------------------------------------------------------------------
+05/03/2022:
+-------------------------------------------------------------------------------
+I have now begun focusing on the more difficult things to implement, such as
+the implementation of a Pokedex and type effectiveness for attacks.
+
+With the viewing Pokedex functionality implemented, it is time to step away
+from the swapping functionality and focus on implementing type effectiveness.
+-------------------------------------------------------------------------------
+STATUS:
+- Added Pokedex functionality, able to flip through all pages of one's
+captured Pokemon.
+	- Have yet to figure out how to swap these Pokemon with a PC's active
+	Pokemon. Difficult do since a Pokedex Pokemon can have an index of
+	'37' for example. Trying to create a string based off of input is
+	weird.
+- Added print_six_pokemon(int page);
+- Added print_pokedex();
+- Added swap_pokemon(int curr_idx, Pokemon pokedex_p, int pokedex_dx);
+- Parsed type_efficacy.csv
+- Added type effectiveness being calculated when calculating the damage done
+by wild Pokemon, an NPC's Pokemon, and the PC's Pokemon.
+- Fixed swapping Pokemon from Pokedex to active team of Pokemon.
+-------------------------------------------------------------------------------
+05/04/2022:
+-------------------------------------------------------------------------------
+The only thing that remained after completing my demo yesterday was prevent
+the error which occurred when entering a non-numeric input when prompted to
+enter the number of the Pokemon in your PokeDex that you wanted to swap into
+your active rotation. I have now resolved this by creating is_number() which
+iterates through all characters of the string and ensures that each character
+is a digit.
+
+MAY THE FOURTH BE WITH YOU!
+-------------------------------------------------------------------------------
+STATUS:
+- Implemented is_number().
+-------------------------------------------------------------------------------
+TO BE DONE AFTER THIS ASSIGNMENT IS DUE:
+--------------------------------------------------------------------------------
+ * TODO: Change use_item() to return an int to indicate whether or not an item
+ was used or not.
+ * TODO: Add display messages for when a move hits.
+ * TODO: Flesh out healing system with better messages displayed. Display if
+ an item was used on an existing Pokemon, and if not, print a different title in the window to inform the PC that the item was not used.
+ * TODO: Add num_escapes as an argument to wild Pokemon battle.
+ * TODO: Would be cool if PC's active Pokemon was displayed in a different
+ color when viewing the PC's team of active Pokemon.
+ * TODO: Remove active_index as I am now regarding the first index to
+ always serve as trainer's active Pokemon.
+ * TODO: Reorganize order of methods in game_events.h and game_events.ccp.
+ * TODO: Clean up (and modulate) code substantially.
+--------------------------------------------------------------------------------
