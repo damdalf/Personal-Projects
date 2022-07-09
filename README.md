@@ -2,7 +2,7 @@
  This repository represents all of my current personal projects that I am working on.
 
 ## Current Projects
-### CLI Pokemon
+### [CLI Pokemon](https://github.com/damdalf/Personal-Projects/tree/main/cli_pokemon)
 * A text-based Pokemon game that you can play on any Unix device, as well as Windows with the necessary tools.
  * Written in C and C++.
  * Utilizes the ncurses library.
