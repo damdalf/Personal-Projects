@@ -8,11 +8,11 @@
  * Utilizes the ncurses library.
 
 ## Ideas
-### Web-Scraper to Parse ISU Surplus Daily Listing's and compare to a pool of keywords and returns a list of any items that did.
+### Web-Scraper to Parse ISU Surplus Daily Listing's and compare to a pool of keywords and returns a list of any items that did
  * Would prefer to write in C++, but Python would probably be most suitable.
 
 
-### Web-Scraper to Parse Yahoo Finance's Information Regarding Hagan Approved Stocks and Return His Data:
+### Web-Scraper to Parse Yahoo Finance's Information Regarding Hagan Approved Stocks and Return His Data
  * Would prefer to write in C++, but Python would probably be most suitable.
 
 ### Discord Bot using Java
