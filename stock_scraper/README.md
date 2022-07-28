@@ -51,8 +51,8 @@ and future prospect.
 	- pastYearRevenue
 	- YearRevenueThreeYearsAgo
 	- changeInRevenuePastThreeYears
-		* formula: (pastYearRevenue - changeInRevenuePastThreeYears) / 
-changeInRevenuePastThreeYears * 100%
+		* formula: (pastYearRevenue - revenueThreeYearsAgo) / 
+revenueThreeYearsAgo * 100%
 		* Growth in revenue is a good indicator of the competitive 
 health of a company, if the increasing sales are from the sale of company 
 products and not by acquisition. Growth by acquisition should be further 

@@ -46,6 +46,10 @@ class Stock:
         self.enterprise_value = self.retrieveEnterpriseValue()
         self.ebit = self.retrieveEBIT()
         self.return_on_enterprise = self.calculateReturnOnEnterpriseValue()
+        self.past_year_revenue = self.retrievePastYearRevenue()
+        self.revenue_three_years_ago = self.retrieveRevenueThreeYearsAgo()
+        self.change_in_revenue_three_years = self.calculateChangeInRevenuePastThreeYears()
+        self.ebit_margin = self.calculateEbitMargin()
 
     # Define class methods.
     def retrieveName(self):
@@ -147,4 +151,120 @@ class Stock:
         enterprise_value = self.enterprise_value.replace(',', '')
         enterprise_value = enterprise_value.replace('B', '')
         return round(float(ebit) / float(enterprise_value) * 100, 2)
+
+    # TODO, Currently retrieves YTD revenue.
+    def retrievePastYearRevenue(self):
+        span_tags = self.financials_page.body.find_all('span')
+        found = 0;
+        past_year_revenue = ""
+
+        for spans in span_tags:
+            if (found == 1):
+                past_year_revenue = spans.string
+                temp = ""
+                floats = past_year_revenue.split(',')
+                i = 0
+
+                for f in floats:
+                    if (i > 1):
+                        break
+                    if (i > 0):
+                        temp += '.'
+                    temp += str(f)
+                    i += 1
+                break
+            if (spans.string == "Total Revenue"):
+                found = 1
+
+        return temp.strip() + 'B'
+
+    def retrieveRevenueThreeYearsAgo(self):
+        span_tags = self.financials_page.body.find_all('span')
+        found = 0;
+        revenue_three_years_ago = ""
+        i = 0
+
+        for spans in span_tags:
+            if (spans.string == "Total Revenue"):
+                found = 1
+                continue
+            if (found == 1):
+                i += 1
+            if ((found == 1) & (i == 4)):
+                revenue_three_years_ago = spans.string
+                temp = ""
+                floats = revenue_three_years_ago.split(',')
+                j = 0
+
+                for f in floats:
+                    if (j > 1):
+                        break
+                    if (j > 0):
+                        temp += '.'
+                    temp += str(f)
+                    j += 1
+
+                return temp.strip() + 'B'
+
+    def calculateChangeInRevenuePastThreeYears(self):
+        past_year_revenue = self.past_year_revenue.replace('B', '')
+        revenue_three_years_ago = self.revenue_three_years_ago.replace('B', '')
+
+        return round((((float(past_year_revenue) / float(revenue_three_years_ago)) - 1) / 3) * 100, 2)
             
+
+    def calculateEbitMargin(self):
+        past_year_revenue = self.past_year_revenue.replace('B', '')
+        ebit = self.ebit.replace('B', '')
+
+        return round((float(ebit) / float(past_year_revenue) * 100), 2) 
+
+    def printBasicInfo(self):
+        print('===========================================================================')
+
+        print("NAME:")
+        print(str(self.name))
+        print()
+
+        print("SECTOR:")
+        print(str(self.sector))
+        print()
+
+        print("INDUSTRY:")
+        print(str(self.industry))
+        print()
+
+        print("MARKET PRICE:")
+        print("$" + str(self.market_price))
+        print()
+
+        print("ENTERPRISE VALUE:")
+        print("$" + str(self.enterprise_value))
+        print()
+
+        print("EBIT:")
+        print("$" + str(self.ebit))
+        print()
+
+        print("RETURN ON ENTERPRISE VALUE:")
+        print(str(self.return_on_enterprise) + "%")
+        print()
+
+        print("PAST YEAR'S REVENUE:")
+        print("$" + str(self.past_year_revenue))
+        print()
+
+        print("REVENUE THREE YEARS AGO:")
+        print("$" + str(self.revenue_three_years_ago))
+        print()
+
+        print("CHANGE IN REVENUE LAST THREE YEARS:")
+        print(str(self.change_in_revenue_three_years) + "%")
+        print()
+
+        print("EBIT MARGIN:")
+        print(str(self.ebit_margin) + "%")
+        print()
+
+        print('===========================================================================')
+        print()

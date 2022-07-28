@@ -9,31 +9,17 @@
 
 import stock
 
-mrk = stock.Stock("CPB")
-print("NAME:")
-print(mrk.name)
-print()
+# Test for a single stock.
+# Runtime: 5.03 seconds
+s = stock.Stock("TSN")
+s.printBasicInfo()
 
-print("SECTOR:")
-print(mrk.sector)
-print()
-
-print("INDUSTRY:")
-print(mrk.industry)
-print()
-
-print("MARKET PRICE:")
-print(mrk.market_price)
-print()
-
-print("ENTERPRISE VALUE:")
-print(mrk.enterprise_value)
-print()
-
-print("EBIT:")
-print(mrk.ebit)
-print()
-
-print("RETURN ON ENTERPRISE VALUE:")
-print(str(mrk.return_on_enterprise) + "%")
-print()
+# Test for ten stocks.
+# Runtime: 43.90 seconds
+stock_names = ["ETSY", "PINS", "MELI", "SQ", "SE", "SHOP", "ISRG", "DIS", "ABBV", "MRK"]
+stocks = []
+i = 0
+for names in stock_names:
+    stocks.append(stock.Stock(names))
+    stocks[i].printBasicInfo()
+    i += 1
