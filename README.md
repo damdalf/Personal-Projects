@@ -2,12 +2,12 @@
  This repository represents all of my current personal projects that I am working on.
 
 ## **Current Projects**
-### CLI Pokemon
+### [CLI Pokemon](https://github.com/damdalf/Personal-Projects/tree/main/cli_pokemon)
 * A text-based Pokemon game that you can play on any Unix device, as well as Windows with the necessary tools.
     * Written in C and C++.
     * Utilizes the ncurses library.
 
- ### Stock Scraper
+ ### [Stock Scraper](https://github.com/damdalf/Personal-Projects/tree/main/stock_scraper)
  * Parses Yahoo Finance's information regarding Hagan's approved stocks and returns useful data and calculations.
     * Written in Python.
     * Utilizes the requests and BeautifulSoup4 libraries.
