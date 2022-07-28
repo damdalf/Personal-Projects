@@ -1,7 +1,7 @@
 # Finance Parser
 This is a basic webscraper written in Python (using requests and 
 BeautifulSoup4) which parses a list of stocks' corresponding Yahoo Finance 
-pages and collects and calculates a series of statisitics about the stock. 
+pages and collects and calculates a series of statistics about the stock. 
 While I hope to later add more features, such as keeping information about 
 stocks over varying time intervals, comparing stocks, easily adding new stocks 
 to be tracked, and many more features, this will be a project that takes some 
