@@ -5,6 +5,7 @@ This is a simple log of all of the features yet to be completed and those that a
 * Further test the Stock class, and make existing code more secure and refactored. 
 * Add in multiple checks and printed error statements (as well as error handling).
 * Remove or complete 'TODO' comments.
+* Update README to be more general purpose and include installation steps for all platforms.
 * Stress test Yahoo Finance by scraping A LOT of stocks.
     * If an error occurs, generate more user aliases and ways to rotate them.
 
