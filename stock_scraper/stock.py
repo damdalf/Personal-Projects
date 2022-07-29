@@ -63,8 +63,8 @@ class Stock:
 
     # Define class methods.
     def retrieveName(self):
-        unformatted_name = self.main_page.body.find_all('h1')
-        unformatted_name = unformatted_name[0]
+        unformatted_name = self.main_page.body.find('h1')
+        unformatted_name = unformatted_name
         words = unformatted_name.string.split(" ")
         name = ""
 
@@ -83,14 +83,16 @@ class Stock:
         span_tags = self.profile_page.body.find_all('span')
         sector = ""
 
+        # TODO, Look into ways of optimizing this. Ex) count # of spans before this, and skip these when searching.
         for tags in span_tags:
-            if (found == 2):
+            if (found == 1):
                 sector = tags.string
-                break
+                return sector.strip()
             if tags.string == "Sector(s)":
-                found = 2
+                found = 1
+        print("ERROR: Unable to find " + self.name + "'s sector!")
 
-        return sector.strip()
+        return "ERROR"
 
 ####################################################################################
 
@@ -99,14 +101,17 @@ class Stock:
         span_tags = self.profile_page.body.find_all('span')
         industry = ""
 
+        # TODO, Look into ways of optimizing this. Ex) count # of spans before this, and skip these when searching.
         for tags in span_tags:
             if (found == 1):
                 industry = tags.string
-                break
+                return industry.strip()
             if tags.string == "Industry":
                 found = 1
+        print("ERROR: Unable to find " + self.name + "'s industry!")
 
-        return industry.strip()
+        return "ERROR"
+        
 
 ####################################################################################
 
@@ -114,11 +119,14 @@ class Stock:
         fin_tags = self.main_page.body.find_all('fin-streamer')
         market_price = ""
 
+        # TODO, Look into ways of optimizing this. Ex) count # of fin-streamers before this, and skip these when searching.
         for fins in fin_tags:
             if ((fins["data-field"] == "regularMarketPrice") & (fins["data-symbol"] == self.ticker)):
                 market_price = fins["value"]
+                return market_price.strip()
+        print("ERROR: Unable to find " + self.name + "'s current market price!")
 
-        return market_price.strip()
+        return "ERROR"
 
 ####################################################################################
 
@@ -126,6 +134,8 @@ class Stock:
         span_tags = self.statistics_page.body.find_all('span')
         enterprise_value = ""
 
+        # TODO, Ensure that this is always retrieving the correct enterprise value for the date.
+        # TODO, Look into ways of optimizing this. Ex) count # of spans before this, and skip these when searching.
         for spans in span_tags:
             if (spans.string == "Enterprise Value"):
                 table_data_tags = spans.parent.parent.find_all("td")
@@ -134,16 +144,21 @@ class Stock:
                     i += 1
                     if (i == 2):
                         enterprise_value = data.string
+                        return enterprise_value.strip()
+        print("ERROR: Unable to find " + self.name + "'s enterprise value!")
 
-        return enterprise_value.strip()
+        return "ERROR"
 
 ####################################################################################
 
+    # TODO, Restructure to check for the unit being used for the 'financials' information. Always displayed.
     def retrieveEBIT(self):
         div_tags = self.financials_page.body.find_all('div')
         found = 0
         ebit = ""
 
+        # TODO, Ensure that this is always retrieving the correct EBIT for the date.
+        # TODO, Look into ways of optimizing this. Ex) count # of divs before this, and skip these when searching.
         for divs in div_tags:
             if (found == 1):
                 ebit = divs.string
@@ -157,14 +172,15 @@ class Stock:
                         new_ebit += '.'
                     new_ebit += str(f)
                     i += 1
-                break
+                return new_ebit.strip() + 'B'
             if (found == 2):
                 found = 1
                 continue
             if (divs.string == "EBIT"):
                 found = 2
+        print("ERROR: Unable to find " + self.name + "'s EBIT!")
 
-        return new_ebit.strip() + 'B'
+        return "ERROR"
 
 ####################################################################################
 
@@ -173,16 +189,19 @@ class Stock:
         enterprise_value = self.enterprise_value.replace(',', '')
         enterprise_value = enterprise_value.replace('B', '')
         
+        # TODO, Decide if should increase precision.
         return round(float(ebit) / float(enterprise_value) * 100, 2)
 
 ####################################################################################
 
-    # TODO, Currently retrieves YTD revenue.
+    # TODO, Currently retrieves YTD revenue. Change to retrieve past year's information.
+    # TODO, Add checking the current date of the system - future oriented.
     def retrievePastYearRevenue(self):
         span_tags = self.financials_page.body.find_all('span')
         found = 0;
         past_year_revenue = ""
 
+        # TODO, Look into ways of optimizing this. Ex) count # of spans before this, and skip these when searching.
         for spans in span_tags:
             if (found == 1):
                 past_year_revenue = spans.string
@@ -197,11 +216,16 @@ class Stock:
                         temp += '.'
                     temp += str(f)
                     i += 1
-                break
+                    
+                return temp.strip() + 'B'
+
             if (spans.string == "Total Revenue"):
                 found = 1
+        print("ERROR: Unable to find " + self.name + "'s revenue from the past year!")
 
-        return temp.strip() + 'B'
+        return "ERROR"
+
+        
 
 ####################################################################################
 
@@ -211,6 +235,7 @@ class Stock:
         revenue_three_years_ago = ""
         i = 0
 
+        # TODO, Look into ways of optimizing this. Ex) count # of spans before this, and skip these when searching.
         for spans in span_tags:
             if (spans.string == "Total Revenue"):
                 found = 1
@@ -225,13 +250,15 @@ class Stock:
 
                 for f in floats:
                     if (j > 1):
-                        break
+                        return temp.strip() + 'B'
                     if (j > 0):
                         temp += '.'
                     temp += str(f)
                     j += 1
+        print("ERROR: Unable to find " + self.name + "'s revenue from three years ago!")
 
-                return temp.strip() + 'B'
+        return "ERROR"
+
 
 ####################################################################################
 
@@ -239,6 +266,7 @@ class Stock:
         past_year_revenue = self.past_year_revenue.replace('B', '')
         revenue_three_years_ago = self.revenue_three_years_ago.replace('B', '')
 
+        # TODO, Decide if should increase precision.
         return round((((float(past_year_revenue) / float(revenue_three_years_ago)) - 1) / 3) * 100, 2)
             
 #################################################################################### 
@@ -247,6 +275,7 @@ class Stock:
         past_year_revenue = self.past_year_revenue.replace('B', '')
         ebit = self.ebit.replace('B', '')
 
+        # TODO, Decide if should increase precision.
         return round((float(ebit) / float(past_year_revenue) * 100), 2) 
 
 ####################################################################################
