@@ -10,13 +10,15 @@
 import stock
 
 # Test for a single stock.
-# Runtime: 5.03 seconds
+# Old Runtime: 5.03 seconds
+# New Runtime: 4.42 seconds
 s = stock.Stock("TSN")
 s.printBasicInfo()
 
 # Test for ten stocks.
-# Runtime: 43.90 seconds
-stock_names = ["ETSY", "PINS", "MELI", "SQ", "SE", "SHOP", "ISRG", "DIS", "ABBV", "MRK"]
+# Old Runtime: 43.90 seconds
+# New Runtime: 36.24 seconds
+stock_names = ["CPB", "PINS", "MELI", "SQ", "SE", "SHOP", "ISRG", "DIS", "ABBV", "MRK"]
 stocks = []
 i = 0
 for names in stock_names:

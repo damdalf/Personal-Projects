@@ -1,15 +1,15 @@
 ####################################################################################
-# AUTHOR: # Devin Amdahl          # FILE: # general tests.py                       #
+# AUTHOR: # Devin Amdahl          # FILE: # stock.py                               #
 # EMAIL:  # devinamdahl@gmail.com ##################################################
 # DATE:   # 07/28/2022            # Class that represents a stock with the         #
 ################################### approriate members and methods for Hagan.      #
 ####################################################################################
 
-# TODO, Evaluate if it is worth it to make members private and add getters and retrieveters for the class... Python things.
-
 from hashlib import new
 from bs4 import BeautifulSoup
 import requests
+import datetime
+from urllib.error import HTTPError, URLError
 
 headers = { 
     'User-Agent'      : 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36', 
@@ -24,15 +24,25 @@ class Stock:
     def __init__(self, ticker):
         # Initialize URL, webpage, and main_page.
         self.url = "https://finance.yahoo.com/quote/" + str(ticker) + "/"
-        self.webpage = requests.get(self.url, headers = headers)
-        self.main_page = BeautifulSoup(self.webpage.content, 'html.parser')
-        # Initialize profile_page.
+        try:
+            self.webpage = requests.get(self.url, headers = headers)
+            self.webpage.raise_for_status()
+        except HTTPError as hp:
+            print("The server could not be found (HTTPError)!")
+        except URLError as ue:
+            print("The server could not be found (URLError)!")
+        else:
+            system_time = datetime.datetime.now()
+            self.date_of_scrape = system_time.strftime("%Y/%m/%d")
+            self.main_page = BeautifulSoup(self.webpage.content, 'html.parser')
+            title = self.main_page.find('title')
+            print("Connection to " + title.string + " was successful!")
+
+        # Initialize profile_page, financials_page, and statistics_page.
         self.webpage = requests.get(self.url + "profile", headers = headers)
         self.profile_page = BeautifulSoup(self.webpage.content, 'html.parser')
-        # Initialize financials_page.
         self.webpage = requests.get(self.url + "financials", headers = headers)
         self.financials_page = BeautifulSoup(self.webpage.content, 'html.parser')
-        # Initialize statistics_page.
         self.webpage = requests.get(self.url + "key-statistics", headers = headers)
         self.statistics_page = BeautifulSoup(self.webpage.content, 'html.parser')
 
@@ -42,7 +52,6 @@ class Stock:
         self.sector = self.retrieveSector()
         self.industry = self.retrieveIndustry()
         self.market_price = self.retrieveMarketPrice()
-        # TODO add a 'at_close_daily_change' and 'after_hours_daily_change' members
         self.enterprise_value = self.retrieveEnterpriseValue()
         self.ebit = self.retrieveEBIT()
         self.return_on_enterprise = self.calculateReturnOnEnterpriseValue()
@@ -53,8 +62,8 @@ class Stock:
 
     # Define class methods.
     def retrieveName(self):
-        unformatted_name = self.main_page.body.find_all('h1')
-        unformatted_name = unformatted_name[0]
+        unformatted_name = self.main_page.body.find('h1')
+        unformatted_name = unformatted_name
         words = unformatted_name.string.split(" ")
         name = ""
 
@@ -66,19 +75,24 @@ class Stock:
 
         return name.strip()
 
+####################################################################################
+
     def retrieveSector(self):
         found = 0;
         span_tags = self.profile_page.body.find_all('span')
         sector = ""
 
         for tags in span_tags:
-            if (found == 2):
+            if (found == 1):
                 sector = tags.string
-                break
+                return sector.strip()
             if tags.string == "Sector(s)":
-                found = 2
+                found = 1
+        print("ERROR: Unable to find " + self.name + "'s sector!")
 
-        return sector.strip()
+        return "ERROR"
+
+####################################################################################
 
     def retrieveIndustry(self):
         found = 0;
@@ -88,11 +102,15 @@ class Stock:
         for tags in span_tags:
             if (found == 1):
                 industry = tags.string
-                break
+                return industry.strip()
             if tags.string == "Industry":
                 found = 1
+        print("ERROR: Unable to find " + self.name + "'s industry!")
 
-        return industry.strip()
+        return "ERROR"
+        
+
+####################################################################################
 
     def retrieveMarketPrice(self):
         fin_tags = self.main_page.body.find_all('fin-streamer')
@@ -101,8 +119,12 @@ class Stock:
         for fins in fin_tags:
             if ((fins["data-field"] == "regularMarketPrice") & (fins["data-symbol"] == self.ticker)):
                 market_price = fins["value"]
+                return market_price.strip()
+        print("ERROR: Unable to find " + self.name + "'s current market price!")
 
-        return market_price.strip()
+        return "ERROR"
+
+####################################################################################
 
     def retrieveEnterpriseValue(self):
         span_tags = self.statistics_page.body.find_all('span')
@@ -116,8 +138,12 @@ class Stock:
                     i += 1
                     if (i == 2):
                         enterprise_value = data.string
+                        return enterprise_value.strip()
+        print("ERROR: Unable to find " + self.name + "'s enterprise value!")
 
-        return enterprise_value.strip()
+        return "ERROR"
+
+####################################################################################
 
     def retrieveEBIT(self):
         div_tags = self.financials_page.body.find_all('div')
@@ -137,22 +163,27 @@ class Stock:
                         new_ebit += '.'
                     new_ebit += str(f)
                     i += 1
-                break
+                return new_ebit.strip() + 'B'
             if (found == 2):
                 found = 1
                 continue
             if (divs.string == "EBIT"):
                 found = 2
+        print("ERROR: Unable to find " + self.name + "'s EBIT!")
 
-        return new_ebit.strip() + 'B'
+        return "ERROR"
+
+####################################################################################
 
     def calculateReturnOnEnterpriseValue(self):
         ebit = self.ebit.replace('B', '')
         enterprise_value = self.enterprise_value.replace(',', '')
         enterprise_value = enterprise_value.replace('B', '')
+        
         return round(float(ebit) / float(enterprise_value) * 100, 2)
 
-    # TODO, Currently retrieves YTD revenue.
+####################################################################################
+
     def retrievePastYearRevenue(self):
         span_tags = self.financials_page.body.find_all('span')
         found = 0;
@@ -172,11 +203,18 @@ class Stock:
                         temp += '.'
                     temp += str(f)
                     i += 1
-                break
+                    
+                return temp.strip() + 'B'
+
             if (spans.string == "Total Revenue"):
                 found = 1
+        print("ERROR: Unable to find " + self.name + "'s revenue from the past year!")
 
-        return temp.strip() + 'B'
+        return "ERROR"
+
+        
+
+####################################################################################
 
     def retrieveRevenueThreeYearsAgo(self):
         span_tags = self.financials_page.body.find_all('span')
@@ -198,20 +236,25 @@ class Stock:
 
                 for f in floats:
                     if (j > 1):
-                        break
+                        return temp.strip() + 'B'
                     if (j > 0):
                         temp += '.'
                     temp += str(f)
                     j += 1
+        print("ERROR: Unable to find " + self.name + "'s revenue from three years ago!")
 
-                return temp.strip() + 'B'
+        return "ERROR"
+
+
+####################################################################################
 
     def calculateChangeInRevenuePastThreeYears(self):
         past_year_revenue = self.past_year_revenue.replace('B', '')
         revenue_three_years_ago = self.revenue_three_years_ago.replace('B', '')
 
-        return round((((float(past_year_revenue) / float(revenue_three_years_ago)) - 1) / 3) * 100, 2)
+        return round(((((float(past_year_revenue) / float(revenue_three_years_ago)) - 1) / 3) * 100), 2)
             
+#################################################################################### 
 
     def calculateEbitMargin(self):
         past_year_revenue = self.past_year_revenue.replace('B', '')
@@ -219,52 +262,93 @@ class Stock:
 
         return round((float(ebit) / float(past_year_revenue) * 100), 2) 
 
-    def printBasicInfo(self):
-        print('===========================================================================')
+####################################################################################
 
+    def printName(self):
         print("NAME:")
-        print(str(self.name))
-        print()
+        print(str(self.name) + "\n")
 
+####################################################################################
+
+    def printSector(self):
         print("SECTOR:")
-        print(str(self.sector))
-        print()
+        print(str(self.sector) + "\n")
 
+####################################################################################
+
+    def printIndustry(self):
         print("INDUSTRY:")
-        print(str(self.industry))
-        print()
+        print(str(self.industry) + "\n")
 
+####################################################################################
+
+    def printMarketPrice(self):
         print("MARKET PRICE:")
-        print("$" + str(self.market_price))
-        print()
+        print("$" + str(self.market_price) + "\n")
 
+####################################################################################
+
+    def printEnterpriseValue(self):
         print("ENTERPRISE VALUE:")
-        print("$" + str(self.enterprise_value))
-        print()
+        print("$" + str(self.enterprise_value) + "\n")
 
+####################################################################################
+
+    def printEBIT(self):
         print("EBIT:")
-        print("$" + str(self.ebit))
-        print()
+        print("$" + str(self.ebit) + "\n")
 
+####################################################################################
+
+    def printReturnOnEnterpriseValue(self):
         print("RETURN ON ENTERPRISE VALUE:")
-        print(str(self.return_on_enterprise) + "%")
-        print()
+        print(str(self.return_on_enterprise) + "%\n")
 
+####################################################################################
+
+    def printPastYearRevenue(self):
         print("PAST YEAR'S REVENUE:")
-        print("$" + str(self.past_year_revenue))
-        print()
+        print("$" + str(self.past_year_revenue) + "\n")
 
+####################################################################################
+
+    def printRevenueFromThreeYearsAgo(self):
         print("REVENUE THREE YEARS AGO:")
-        print("$" + str(self.revenue_three_years_ago))
-        print()
+        print("$" + str(self.revenue_three_years_ago) + "\n")
 
+####################################################################################
+
+    def printChangeInRevenueLastThreeYears(self):
         print("CHANGE IN REVENUE LAST THREE YEARS:")
-        print(str(self.change_in_revenue_three_years) + "%")
-        print()
+        print(str(self.change_in_revenue_three_years) + "%\n")
 
+####################################################################################
+
+    def printEbitMargin(self):
         print("EBIT MARGIN:")
-        print(str(self.ebit_margin) + "%")
-        print()
+        print(str(self.ebit_margin) + "%\n")
 
-        print('===========================================================================')
-        print()
+####################################################################################
+
+    def printDateOfLog(self):
+        print("Date of scrape: " + self.date_of_scrape)
+
+####################################################################################
+
+    def printBasicInfo(self):
+        print('=============================================================================')
+        self.printDateOfLog()
+        print('=============================================================================\n')
+        self.printName()
+        self.printSector()
+        self.printIndustry()
+        self.printMarketPrice()
+        self.printEnterpriseValue()
+        self.printReturnOnEnterpriseValue()
+        self.printRevenueFromThreeYearsAgo()
+        self.printEbitMargin()
+        print('=============================================================================')
+        print('#############################################################################')
+        print('=============================================================================\n')
+
+####################################################################################

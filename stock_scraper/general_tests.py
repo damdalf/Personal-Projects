@@ -74,3 +74,8 @@ for soups in tags:
             if (i == 2):
                 print(soups.string)
         found = 1
+
+# Search the <th> tags and look for the unit used on the 'financials' page.
+
+#ths = soup.body.find_all('th')
+#for ts in ths:
