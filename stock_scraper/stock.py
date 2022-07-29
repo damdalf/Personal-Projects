@@ -1,15 +1,14 @@
 ####################################################################################
-# AUTHOR: # Devin Amdahl          # FILE: # stock.py                       #
+# AUTHOR: # Devin Amdahl          # FILE: # stock.py                               #
 # EMAIL:  # devinamdahl@gmail.com ##################################################
 # DATE:   # 07/28/2022            # Class that represents a stock with the         #
 ################################### approriate members and methods for Hagan.      #
 ####################################################################################
 
-# TODO, Evaluate if it is worth it to make members private and add getters and retrieveters for the class... Python things.
-
 from hashlib import new
 from bs4 import BeautifulSoup
 import requests
+import datetime
 from urllib.error import HTTPError, URLError
 
 headers = { 
@@ -20,6 +19,7 @@ headers = {
     'Connection'      : 'close'
 }
 
+# TODO, Evaluate if it is worth it to make members private and add getters and retrieveters for the class... Python things.
 class Stock:
     # Constructor.
     def __init__(self, ticker):
@@ -29,14 +29,15 @@ class Stock:
             self.webpage = requests.get(self.url, headers = headers)
             self.webpage.raise_for_status()
         except HTTPError as hp:
-            print(hp)
+            print("The server could not be found (HTTPError)!")
         except URLError as ue:
-            print("The server could not be found.")
+            print("The server could not be found (URLError)!")
         else:
+            system_time = datetime.datetime.now()
+            self.date_of_scrape = system_time.strftime("%Y/%m/%d")
             self.main_page = BeautifulSoup(self.webpage.content, 'html.parser')
             title = self.main_page.find('title')
             print("Connection to " + title.string + " was successful!")
-            print()
 
         # Initialize profile_page, financials_page, and statistics_page.
         self.webpage = requests.get(self.url + "profile", headers = headers)
@@ -76,7 +77,7 @@ class Stock:
 
         return name.strip()
 
-    ####################################################################################
+####################################################################################
 
     def retrieveSector(self):
         found = 0;
@@ -196,6 +197,7 @@ class Stock:
 
     # TODO, Currently retrieves YTD revenue. Change to retrieve past year's information.
     # TODO, Add checking the current date of the system - future oriented.
+    # TODO, Restructure to check for the unit being used for the 'financials' information. Always displayed.
     def retrievePastYearRevenue(self):
         span_tags = self.financials_page.body.find_all('span')
         found = 0;
@@ -229,6 +231,7 @@ class Stock:
 
 ####################################################################################
 
+    # TODO, Restructure to check for the unit being used for the 'financials' information. Always displayed.
     def retrieveRevenueThreeYearsAgo(self):
         span_tags = self.financials_page.body.find_all('span')
         found = 0;
@@ -267,7 +270,7 @@ class Stock:
         revenue_three_years_ago = self.revenue_three_years_ago.replace('B', '')
 
         # TODO, Decide if should increase precision.
-        return round((((float(past_year_revenue) / float(revenue_three_years_ago)) - 1) / 3) * 100, 2)
+        return round(((((float(past_year_revenue) / float(revenue_three_years_ago)) - 1) / 3) * 100), 2)
             
 #################################################################################### 
 
@@ -280,55 +283,92 @@ class Stock:
 
 ####################################################################################
 
+    def printName(self):
+        print("NAME:")
+        print(str(self.name) + "\n")
+
+####################################################################################
+
+    def printSector(self):
+        print("SECTOR:")
+        print(str(self.sector) + "\n")
+
+####################################################################################
+
+    def printIndustry(self):
+        print("INDUSTRY:")
+        print(str(self.industry) + "\n")
+
+####################################################################################
+
+    def printMarketPrice(self):
+        print("MARKET PRICE:")
+        print("$" + str(self.market_price) + "\n")
+
+####################################################################################
+
+    def printEnterpriseValue(self):
+        print("ENTERPRISE VALUE:")
+        print("$" + str(self.enterprise_value) + "\n")
+
+####################################################################################
+
+    def printEBIT(self):
+        print("EBIT:")
+        print("$" + str(self.ebit) + "\n")
+
+####################################################################################
+
+    def printReturnOnEnterpriseValue(self):
+        print("RETURN ON ENTERPRISE VALUE:")
+        print(str(self.return_on_enterprise) + "%\n")
+
+####################################################################################
+
+    def printPastYearRevenue(self):
+        print("PAST YEAR'S REVENUE:")
+        print("$" + str(self.past_year_revenue) + "\n")
+
+####################################################################################
+
+    def printRevenueFromThreeYearsAgo(self):
+        print("REVENUE THREE YEARS AGO:")
+        print("$" + str(self.revenue_three_years_ago) + "\n")
+
+####################################################################################
+
+    def printChangeInRevenueLastThreeYears(self):
+        print("CHANGE IN REVENUE LAST THREE YEARS:")
+        print(str(self.change_in_revenue_three_years) + "%\n")
+
+####################################################################################
+
+    def printEbitMargin(self):
+        print("EBIT MARGIN:")
+        print(str(self.ebit_margin) + "%\n")
+
+####################################################################################
+
+    def printDateOfLog(self):
+        print("Date of scrape: " + self.date_of_scrape)
+
+####################################################################################
+
     # TODO, Abstract some of this - indidivual print methods for groupings.
     def printBasicInfo(self):
-        print('===========================================================================')
-
-        print("NAME:")
-        print(str(self.name))
-        print()
-
-        print("SECTOR:")
-        print(str(self.sector))
-        print()
-
-        print("INDUSTRY:")
-        print(str(self.industry))
-        print()
-
-        print("MARKET PRICE:")
-        print("$" + str(self.market_price))
-        print()
-
-        print("ENTERPRISE VALUE:")
-        print("$" + str(self.enterprise_value))
-        print()
-
-        print("EBIT:")
-        print("$" + str(self.ebit))
-        print()
-
-        print("RETURN ON ENTERPRISE VALUE:")
-        print(str(self.return_on_enterprise) + "%")
-        print()
-
-        print("PAST YEAR'S REVENUE:")
-        print("$" + str(self.past_year_revenue))
-        print()
-
-        print("REVENUE THREE YEARS AGO:")
-        print("$" + str(self.revenue_three_years_ago))
-        print()
-
-        print("CHANGE IN REVENUE LAST THREE YEARS:")
-        print(str(self.change_in_revenue_three_years) + "%")
-        print()
-
-        print("EBIT MARGIN:")
-        print(str(self.ebit_margin) + "%")
-        print()
-
-        print('===========================================================================')
-        print()
+        print('=============================================================================')
+        self.printDateOfLog()
+        print('=============================================================================\n')
+        self.printName()
+        self.printSector()
+        self.printIndustry()
+        self.printMarketPrice()
+        self.printEnterpriseValue()
+        self.printReturnOnEnterpriseValue()
+        self.printRevenueFromThreeYearsAgo()
+        self.printEbitMargin()
+        print('=============================================================================')
+        print('#############################################################################')
+        print('=============================================================================\n')
 
 ####################################################################################
