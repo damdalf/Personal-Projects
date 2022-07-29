@@ -19,7 +19,6 @@ headers = {
     'Connection'      : 'close'
 }
 
-# TODO, Evaluate if it is worth it to make members private and add getters and retrieveters for the class... Python things.
 class Stock:
     # Constructor.
     def __init__(self, ticker):
@@ -53,7 +52,6 @@ class Stock:
         self.sector = self.retrieveSector()
         self.industry = self.retrieveIndustry()
         self.market_price = self.retrieveMarketPrice()
-        # TODO add a 'at_close_daily_change', 'after_hours_daily_change', and 'dividends' members
         self.enterprise_value = self.retrieveEnterpriseValue()
         self.ebit = self.retrieveEBIT()
         self.return_on_enterprise = self.calculateReturnOnEnterpriseValue()
@@ -84,7 +82,6 @@ class Stock:
         span_tags = self.profile_page.body.find_all('span')
         sector = ""
 
-        # TODO, Look into ways of optimizing this. Ex) count # of spans before this, and skip these when searching.
         for tags in span_tags:
             if (found == 1):
                 sector = tags.string
@@ -102,7 +99,6 @@ class Stock:
         span_tags = self.profile_page.body.find_all('span')
         industry = ""
 
-        # TODO, Look into ways of optimizing this. Ex) count # of spans before this, and skip these when searching.
         for tags in span_tags:
             if (found == 1):
                 industry = tags.string
@@ -120,7 +116,6 @@ class Stock:
         fin_tags = self.main_page.body.find_all('fin-streamer')
         market_price = ""
 
-        # TODO, Look into ways of optimizing this. Ex) count # of fin-streamers before this, and skip these when searching.
         for fins in fin_tags:
             if ((fins["data-field"] == "regularMarketPrice") & (fins["data-symbol"] == self.ticker)):
                 market_price = fins["value"]
@@ -135,8 +130,6 @@ class Stock:
         span_tags = self.statistics_page.body.find_all('span')
         enterprise_value = ""
 
-        # TODO, Ensure that this is always retrieving the correct enterprise value for the date.
-        # TODO, Look into ways of optimizing this. Ex) count # of spans before this, and skip these when searching.
         for spans in span_tags:
             if (spans.string == "Enterprise Value"):
                 table_data_tags = spans.parent.parent.find_all("td")
@@ -152,14 +145,11 @@ class Stock:
 
 ####################################################################################
 
-    # TODO, Restructure to check for the unit being used for the 'financials' information. Always displayed.
     def retrieveEBIT(self):
         div_tags = self.financials_page.body.find_all('div')
         found = 0
         ebit = ""
 
-        # TODO, Ensure that this is always retrieving the correct EBIT for the date.
-        # TODO, Look into ways of optimizing this. Ex) count # of divs before this, and skip these when searching.
         for divs in div_tags:
             if (found == 1):
                 ebit = divs.string
@@ -190,20 +180,15 @@ class Stock:
         enterprise_value = self.enterprise_value.replace(',', '')
         enterprise_value = enterprise_value.replace('B', '')
         
-        # TODO, Decide if should increase precision.
         return round(float(ebit) / float(enterprise_value) * 100, 2)
 
 ####################################################################################
 
-    # TODO, Currently retrieves YTD revenue. Change to retrieve past year's information.
-    # TODO, Add checking the current date of the system - future oriented.
-    # TODO, Restructure to check for the unit being used for the 'financials' information. Always displayed.
     def retrievePastYearRevenue(self):
         span_tags = self.financials_page.body.find_all('span')
         found = 0;
         past_year_revenue = ""
 
-        # TODO, Look into ways of optimizing this. Ex) count # of spans before this, and skip these when searching.
         for spans in span_tags:
             if (found == 1):
                 past_year_revenue = spans.string
@@ -231,14 +216,12 @@ class Stock:
 
 ####################################################################################
 
-    # TODO, Restructure to check for the unit being used for the 'financials' information. Always displayed.
     def retrieveRevenueThreeYearsAgo(self):
         span_tags = self.financials_page.body.find_all('span')
         found = 0;
         revenue_three_years_ago = ""
         i = 0
 
-        # TODO, Look into ways of optimizing this. Ex) count # of spans before this, and skip these when searching.
         for spans in span_tags:
             if (spans.string == "Total Revenue"):
                 found = 1
@@ -269,7 +252,6 @@ class Stock:
         past_year_revenue = self.past_year_revenue.replace('B', '')
         revenue_three_years_ago = self.revenue_three_years_ago.replace('B', '')
 
-        # TODO, Decide if should increase precision.
         return round(((((float(past_year_revenue) / float(revenue_three_years_ago)) - 1) / 3) * 100), 2)
             
 #################################################################################### 
@@ -278,7 +260,6 @@ class Stock:
         past_year_revenue = self.past_year_revenue.replace('B', '')
         ebit = self.ebit.replace('B', '')
 
-        # TODO, Decide if should increase precision.
         return round((float(ebit) / float(past_year_revenue) * 100), 2) 
 
 ####################################################################################
@@ -354,7 +335,6 @@ class Stock:
 
 ####################################################################################
 
-    # TODO, Abstract some of this - indidivual print methods for groupings.
     def printBasicInfo(self):
         print('=============================================================================')
         self.printDateOfLog()
