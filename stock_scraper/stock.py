@@ -1,5 +1,5 @@
 ####################################################################################
-# AUTHOR: # Devin Amdahl          # FILE: # general tests.py                       #
+# AUTHOR: # Devin Amdahl          # FILE: # stock.py                       #
 # EMAIL:  # devinamdahl@gmail.com ##################################################
 # DATE:   # 07/28/2022            # Class that represents a stock with the         #
 ################################### approriate members and methods for Hagan.      #
@@ -10,6 +10,7 @@
 from hashlib import new
 from bs4 import BeautifulSoup
 import requests
+from urllib.error import HTTPError, URLError
 
 headers = { 
     'User-Agent'      : 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36', 
@@ -24,15 +25,24 @@ class Stock:
     def __init__(self, ticker):
         # Initialize URL, webpage, and main_page.
         self.url = "https://finance.yahoo.com/quote/" + str(ticker) + "/"
-        self.webpage = requests.get(self.url, headers = headers)
-        self.main_page = BeautifulSoup(self.webpage.content, 'html.parser')
-        # Initialize profile_page.
+        try:
+            self.webpage = requests.get(self.url, headers = headers)
+            self.webpage.raise_for_status()
+        except HTTPError as hp:
+            print(hp)
+        except URLError as ue:
+            print("The server could not be found.")
+        else:
+            self.main_page = BeautifulSoup(self.webpage.content, 'html.parser')
+            title = self.main_page.find('title')
+            print("Connection to " + title.string + " was successful!")
+            print()
+
+        # Initialize profile_page, financials_page, and statistics_page.
         self.webpage = requests.get(self.url + "profile", headers = headers)
         self.profile_page = BeautifulSoup(self.webpage.content, 'html.parser')
-        # Initialize financials_page.
         self.webpage = requests.get(self.url + "financials", headers = headers)
         self.financials_page = BeautifulSoup(self.webpage.content, 'html.parser')
-        # Initialize statistics_page.
         self.webpage = requests.get(self.url + "key-statistics", headers = headers)
         self.statistics_page = BeautifulSoup(self.webpage.content, 'html.parser')
 
@@ -42,7 +52,7 @@ class Stock:
         self.sector = self.retrieveSector()
         self.industry = self.retrieveIndustry()
         self.market_price = self.retrieveMarketPrice()
-        # TODO add a 'at_close_daily_change' and 'after_hours_daily_change' members
+        # TODO add a 'at_close_daily_change', 'after_hours_daily_change', and 'dividends' members
         self.enterprise_value = self.retrieveEnterpriseValue()
         self.ebit = self.retrieveEBIT()
         self.return_on_enterprise = self.calculateReturnOnEnterpriseValue()
@@ -66,6 +76,8 @@ class Stock:
 
         return name.strip()
 
+    ####################################################################################
+
     def retrieveSector(self):
         found = 0;
         span_tags = self.profile_page.body.find_all('span')
@@ -79,6 +91,8 @@ class Stock:
                 found = 2
 
         return sector.strip()
+
+####################################################################################
 
     def retrieveIndustry(self):
         found = 0;
@@ -94,6 +108,8 @@ class Stock:
 
         return industry.strip()
 
+####################################################################################
+
     def retrieveMarketPrice(self):
         fin_tags = self.main_page.body.find_all('fin-streamer')
         market_price = ""
@@ -103,6 +119,8 @@ class Stock:
                 market_price = fins["value"]
 
         return market_price.strip()
+
+####################################################################################
 
     def retrieveEnterpriseValue(self):
         span_tags = self.statistics_page.body.find_all('span')
@@ -118,6 +136,8 @@ class Stock:
                         enterprise_value = data.string
 
         return enterprise_value.strip()
+
+####################################################################################
 
     def retrieveEBIT(self):
         div_tags = self.financials_page.body.find_all('div')
@@ -146,11 +166,16 @@ class Stock:
 
         return new_ebit.strip() + 'B'
 
+####################################################################################
+
     def calculateReturnOnEnterpriseValue(self):
         ebit = self.ebit.replace('B', '')
         enterprise_value = self.enterprise_value.replace(',', '')
         enterprise_value = enterprise_value.replace('B', '')
+        
         return round(float(ebit) / float(enterprise_value) * 100, 2)
+
+####################################################################################
 
     # TODO, Currently retrieves YTD revenue.
     def retrievePastYearRevenue(self):
@@ -177,6 +202,8 @@ class Stock:
                 found = 1
 
         return temp.strip() + 'B'
+
+####################################################################################
 
     def retrieveRevenueThreeYearsAgo(self):
         span_tags = self.financials_page.body.find_all('span')
@@ -206,12 +233,15 @@ class Stock:
 
                 return temp.strip() + 'B'
 
+####################################################################################
+
     def calculateChangeInRevenuePastThreeYears(self):
         past_year_revenue = self.past_year_revenue.replace('B', '')
         revenue_three_years_ago = self.revenue_three_years_ago.replace('B', '')
 
         return round((((float(past_year_revenue) / float(revenue_three_years_ago)) - 1) / 3) * 100, 2)
             
+#################################################################################### 
 
     def calculateEbitMargin(self):
         past_year_revenue = self.past_year_revenue.replace('B', '')
@@ -219,6 +249,9 @@ class Stock:
 
         return round((float(ebit) / float(past_year_revenue) * 100), 2) 
 
+####################################################################################
+
+    # TODO, Abstract some of this - indidivual print methods for groupings.
     def printBasicInfo(self):
         print('===========================================================================')
 
@@ -268,3 +301,5 @@ class Stock:
 
         print('===========================================================================')
         print()
+
+####################################################################################
