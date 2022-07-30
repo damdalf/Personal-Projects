@@ -7,9 +7,11 @@
 
 from hashlib import new
 from bs4 import BeautifulSoup
+from urllib.error import HTTPError, URLError
 import requests
 import datetime
-from urllib.error import HTTPError, URLError
+import time
+
 
 headers = { 
     'User-Agent'      : 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36', 
@@ -129,15 +131,23 @@ class Stock:
     def retrieveEnterpriseValue(self):
         span_tags = self.statistics_page.body.find_all('span')
         enterprise_value = ""
+        i = 0
+        j = 0
 
         for spans in span_tags:
             if (spans.string == "Enterprise Value"):
                 table_data_tags = spans.parent.parent.find_all("td")
-                i = 0
                 for data in table_data_tags:
                     i += 1
                     if (i == 2):
                         enterprise_value = data.string
+                        if (j > 2):
+                            print("ERROR: Unable to find " + self.name + "'s enterprise value!")
+                            return "ERROR"
+                        if (enterprise_value.strip() == 'N/A' | enterprise_value.strip() == ''):
+                            j += 1
+                            time.sleep(5.0)
+                            self.retrieveEnterpriseValue()
                         return enterprise_value.strip()
         print("ERROR: Unable to find " + self.name + "'s enterprise value!")
 
