@@ -8,20 +8,25 @@
 # TODO, Adding actual unit tests would be a great next step.
 
 import stock
+import stock_db
 
 # Test for a single stock.
 # Old Runtime: 5.03 seconds
 # New Runtime: 4.42 seconds
-s = stock.Stock("TSN")
-s.printBasicInfo()
+# s = stock.Stock("TSN")
+# s.printBasicInfo()
 
 # Test for ten stocks.
 # Old Runtime: 43.90 seconds
 # New Runtime: 36.24 seconds
 stock_names = ["CPB", "PINS", "MELI", "SQ", "SE", "SHOP", "ISRG", "DIS", "ABBV", "MRK"]
 stocks = []
-i = 0
-for names in stock_names:
-    stocks.append(stock.Stock(names))
-    stocks[i].printBasicInfo()
-    i += 1
+
+stock_db.connect()
+
+while(1):
+    i = 0
+    for names in stock_names:
+        stocks.append(stock.Stock(names))
+        stocks[i].printBasicInfo()
+        i += 1
