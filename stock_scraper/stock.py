@@ -146,6 +146,20 @@ class Stock:
 ####################################################################################
 
     def retrieveEBIT(self):
+        # Retrieve scale being used for financial information.
+        span_tags = self.financials_page.find_all('span')
+
+        # for spans in span_tags:
+        #     if (spans.beginsWith('All numbers in')):
+        #         scale = spans.split(' ')[3]
+        #         # TODO, need to figure out how to change magnitude of number based on these checks.
+        #         if (scale.lower().strip() == 'thousands'):
+        #             print("Numbers reported in thousands.")
+        #         elif (scale.lower().strip() == 'millions'):
+        #             print("Numbers reported in millions.")
+        #         elif (scale.lower().strip() == 'billions'):
+        #             print("Numbers reported in billions.")
+
         div_tags = self.financials_page.body.find_all('div')
         found = 0
         ebit = ""
