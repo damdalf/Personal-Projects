@@ -56,19 +56,18 @@ async def is_draw():
 
 
 def format_board():
-    global moves_made
     global board
-    global current_player
-    board_str = ''
+    board_str = "-----------\n"
     for row in range(len(board)):
         for col in range(len(board[row])):
             if board[row][col] == 1:
-                board_str += 'X '
+                board_str += "| X "
             elif board[row][col] == 2:
-                board_str += 'O '
+                board_str += "| O "
             else:
-                board_str += '~  '
-        board_str += '\n'
+                board_str += "|     "
+        board_str += "|\n"
+        board_str += "-----------\n"
     return board_str
 
 
