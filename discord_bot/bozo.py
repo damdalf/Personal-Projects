@@ -195,7 +195,7 @@ async def on_message(message):
         elif num == 4:
             await message.reply("Ahhhhhhhhh!")
         elif num == 5:
-            await message.author.reply("What do you want?!")
+            await message.author.send("What do you want?!")
         elif num == 6:
             await message.author.send(
                 "You must be new to the Discord server, right? Well listen clearly, leave me alone!")
