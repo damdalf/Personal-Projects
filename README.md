@@ -21,3 +21,7 @@
 ### Web-Scraper to Parse ISU Surplus Daily Listing's and compare to a pool of keywords and returns a list of any items that did.
 * Written in Python.
 * Utilizes the requests and BeautifulSoup4 libraries.
+
+### CLI Tool or Webapp to Parse JPEG Files for Hidden or Nested JPEG Files
+* Steganography is fun!
+* Not sure what language at this point in time. Just wanted to jot this idea down.
